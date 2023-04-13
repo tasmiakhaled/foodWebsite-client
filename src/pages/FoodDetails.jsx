@@ -21,17 +21,6 @@ const FoodDetails = () => {
     const { id } = useParams();
     const dispatch = useDispatch();
 
-    const addItem = () => {
-        dispatch(
-            cartActions.addItem({
-                id,
-                // title,
-                // price,
-                // image01,
-            })
-        );
-    };
-
     useEffect(() => {
         fetch(`http://localhost:5000/foods/${id}`)
             .then(res => res.json())
@@ -44,6 +33,18 @@ const FoodDetails = () => {
 
         console.log(enteredName, enteredEmail, reviewMsg);
     };
+
+    const addToCart = () => {
+        dispatch(
+          cartActions.addItem({
+            id,
+            // title,
+            // image01,
+            // price,
+          })
+        );
+      };
+    
 
     return (
         <Helmet title="Product-details">
@@ -67,7 +68,7 @@ const FoodDetails = () => {
                                     Category: <span>{foodInfo.category}</span>
                                 </p>
 
-                                <button onClick={addItem} className="addTOCart__btn">
+                                <button onClick={addToCart} className="addTOCart__btn">
                                     Add to Cart
                                 </button>
                             </div>

@@ -36,7 +36,7 @@ const cartSlice = createSlice({
     addItem(state, action) {
       const newItem = action.payload;
       const existingItem = state.cartItems.find(
-        (item) => item.id === newItem.id
+        (item) => item._id === newItem._id
       );
       state.totalQuantity++;
 
@@ -44,7 +44,7 @@ const cartSlice = createSlice({
         // ===== note: if you use just redux you should not mute state array instead of clone the state array, but if you use redux toolkit that will not a problem because redux toolkit clone the array behind the scene
 
         state.cartItems.push({
-          id: newItem.id,
+          _id: newItem._id,
           title: newItem.title,
           image01: newItem.image01,
           price: newItem.price,
@@ -73,12 +73,12 @@ const cartSlice = createSlice({
     // ========= remove item ========
 
     removeItem(state, action) {
-      const id = action.payload;
-      const existingItem = state.cartItems.find((item) => item.id === id);
+      const _id = action.payload;
+      const existingItem = state.cartItems.find((item) => item._id === _id);
       state.totalQuantity >= 0 && state.totalQuantity--;
 
       if (existingItem.quantity === 1) {
-        state.cartItems = state.cartItems.filter((item) => item.id !== id);
+        state.cartItems = state.cartItems.filter((item) => item._id !== _id);
       } else {
         existingItem.quantity--;
         existingItem.totalPrice =
@@ -100,11 +100,11 @@ const cartSlice = createSlice({
     //============ delete item ===========
 
     deleteItem(state, action) {
-      const id = action.payload;
-      const existingItem = state.cartItems.find((item) => item.id === id);
+      const _id = action.payload;
+      const existingItem = state.cartItems.find((item) => item._id === _id);
 
       if (existingItem) {
-        state.cartItems = state.cartItems.filter((item) => item.id !== id);
+        state.cartItems = state.cartItems.filter((item) => item._id !== _id);
         state.totalQuantity = state.totalQuantity - existingItem.quantity;
       }
 

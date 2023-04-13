@@ -33,7 +33,7 @@ const Cart = () => {
                   </thead>
                   <tbody>
                     {cartItems.map((item) => (
-                      <Tr item={item} key={item.id} />
+                      <Tr item={item} key={item._id} />
                     ))}
                   </tbody>
                 </table>
@@ -63,11 +63,11 @@ const Cart = () => {
 };
 
 const Tr = (props) => {
-  const { id, image01, title, price, quantity } = props.item;
+  const { _id, image01, title, price, quantity } = props.item;
   const dispatch = useDispatch();
 
   const deleteItem = () => {
-    dispatch(cartActions.deleteItem(id));
+    dispatch(cartActions.deleteItem(_id));
   };
   return (
     <tr>

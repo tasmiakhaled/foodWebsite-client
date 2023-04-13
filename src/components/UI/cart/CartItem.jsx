@@ -7,14 +7,14 @@ import { useDispatch } from "react-redux";
 import { cartActions } from "../../../store/shopping-cart/cartSlice";
 
 const CartItem = ({ item }) => {
-  const { id, title, price, image01, quantity, totalPrice } = item;
+  const { _id, title, price, image01, quantity, totalPrice } = item;
 
   const dispatch = useDispatch();
 
   const incrementItem = () => {
     dispatch(
       cartActions.addItem({
-        id,
+        _id,
         title,
         price,
         image01,
@@ -23,11 +23,11 @@ const CartItem = ({ item }) => {
   };
 
   const decreaseItem = () => {
-    dispatch(cartActions.removeItem(id));
+    dispatch(cartActions.removeItem(_id));
   };
 
   const deleteItem = () => {
-    dispatch(cartActions.deleteItem(id));
+    dispatch(cartActions.deleteItem(_id));
   };
 
   return (
