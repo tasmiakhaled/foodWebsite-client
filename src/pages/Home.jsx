@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect } from "react";
+
+import { TimelineLite, Power3} from 'gsap';
 
 import Helmet from "../components/Helmet/Helmet.js";
 import { Container, Row, Col, ListGroup, ListGroupItem } from "reactstrap";
@@ -42,6 +44,12 @@ const featureData = [
 ];
 
 const Home = () => {
+
+  useEffect( () => {
+    const tl = new TimelineLite({ delay: 0.3});
+    tl.from('.hero__img', {duration: 0.7, opacity:0, y:15, delay:0.5})
+    tl.from('.hero__content', {duration: 0.7, opacity:0, y:15, delay:0.5})
+  }, []);
 
   return (
     <Helmet title="Home">
