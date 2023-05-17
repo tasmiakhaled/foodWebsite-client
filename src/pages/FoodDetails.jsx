@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { useEffect } from 'react';
 import { useState } from 'react';
 import { Col, Container, Row } from 'reactstrap';
@@ -9,6 +9,8 @@ import { useDispatch } from "react-redux";
 import { cartActions } from "../store/shopping-cart/cartSlice";
 
 import "../styles/product-details.css";
+import { AuthContext } from '../contexts/UserContext';
+import CommentSection from './CommentSection';
 
 const FoodDetails = () => {
 
@@ -17,6 +19,12 @@ const FoodDetails = () => {
     const [enteredEmail, setEnteredEmail] = useState("");
     const [reviewMsg, setReviewMsg] = useState("");
     const [foodInfo, setFoodInfo] = useState([]);
+    const [liked, setLiked] = useState(false);
+    const [disliked, setDisliked] = useState(false);
+    const [likeCount, setLikeCount] = useState(0);
+    const [dislikeCount, setDislikeCount] = useState(0);
+    const [lastLikeClickTime, setLastLikeClickTime] = useState(0);
+    const [lastDislikeClickTime, setLastDislikeClickTime] = useState(0);
 
     const { id } = useParams();
     const dispatch = useDispatch();
@@ -24,27 +32,125 @@ const FoodDetails = () => {
     useEffect(() => {
         fetch(`http://localhost:5000/foods/${id}`)
             .then(res => res.json())
-            .then(foodInfo => setFoodInfo(foodInfo))
+            .then(foodInfo => {
+                setFoodInfo(foodInfo);
+                setLikeCount(foodInfo.likes);
+                setDislikeCount(foodInfo.dislikes);
+            })
             .catch(error => console.error(error))
+
+        // Check if the user liked the food item
+        const userLiked = localStorage.getItem(`liked-${id}`);
+        if (userLiked === 'true') {
+            setLiked(true);
+        }
+
+        // Check if the user disliked the food item
+        const userDisliked = localStorage.getItem(`disliked-${id}`);
+        if (userDisliked === 'true') {
+            setDisliked(true);
+        }
     }, [id]);
+
+    const { user } = useContext(AuthContext);
+    console.log('context', user);
 
     const submitHandler = (e) => {
         e.preventDefault();
 
-        console.log(enteredName, enteredEmail, reviewMsg);
+        // console.log(enteredName, enteredEmail, reviewMsg);
     };
 
     const addToCart = () => {
         dispatch(
-          cartActions.addItem({
-            id,
-            // title,
-            // image01,
-            // price,
-          })
+            cartActions.addItem({
+                id,
+                // title,
+                // image01,
+                // price,
+            })
         );
-      };
-    
+    };
+
+    const handleLikeBtn = () => {
+        setLiked(!liked);
+        const currentTime = Date.now();
+
+        if (!liked) {
+            setLikeCount(likeCount + 1);
+            localStorage.setItem(`liked-${id}`, 'true');
+            setLiked(true);
+            if (disliked) {
+                setDisliked(false);
+                setDislikeCount(dislikeCount - 1);
+                localStorage.removeItem(`disliked-${id}`);
+            }
+        } else if (currentTime - lastLikeClickTime < 10000) {
+            // User double-clicked the like button
+            setLikeCount(likeCount - 1);
+            localStorage.removeItem(`liked-${id}`);
+            setLiked(false);
+        } else {
+            // User clicked the like button once
+            setLikeCount(likeCount + 1);
+            localStorage.setItem(`liked-${id}`, 'true');
+            setLiked(true);
+        }
+
+        // Update the last click time
+        setLastLikeClickTime(currentTime);
+
+        fetch(`http://localhost:5000/foods/${id}/like`, {
+            method: 'PUT',
+        })
+            .then((res) => res.json())
+            .then((updatedProduct) => {
+                // setFoodInfo(updatedProduct);
+                console.log('Like request successful:', updatedProduct);
+            })
+            .catch((error) => console.error(error));
+
+    };
+
+    const handleDislikeBtn = () => {
+        setDisliked(!disliked);
+        const currentTime = Date.now();
+
+        if (!disliked) {
+            setDislikeCount(dislikeCount + 1);
+            localStorage.setItem(`disliked-${id}`, 'true');
+            setDisliked(true);
+            if (liked) {
+                setLiked(false);
+                setLikeCount(likeCount - 1);
+                localStorage.removeItem(`liked-${id}`);
+            }
+        } else if (currentTime - lastDislikeClickTime < 10000) {
+            // User double-clicked the dislike button
+            setDislikeCount(dislikeCount - 1);
+            localStorage.removeItem(`disliked-${id}`);
+            setDisliked(false);
+        } else {
+            // User clicked the dislike button once
+            setDislikeCount(dislikeCount + 1);
+            localStorage.setItem(`disliked-${id}`, 'true');
+            setDisliked(true);
+        }
+
+        // Update the last click time
+        setLastDislikeClickTime(currentTime);
+
+        fetch(`http://localhost:5000/foods/${id}/dislike`, {
+            method: 'PUT',
+        })
+            .then((res) => res.json())
+            .then((updatedProduct) => {
+                // Handle the response if needed
+                // setFoodInfo(updatedProduct);
+                console.log('Dislike request successful:', updatedProduct);
+            })
+            .catch((error) => console.error(error));
+    };
 
     return (
         <Helmet title="Product-details">
@@ -64,10 +170,22 @@ const FoodDetails = () => {
                                     {" "}
                                     Price: <span>${foodInfo.price}</span>
                                 </p>
-                                <p className="category mb-5">
+                                <p className="category">
                                     Category: <span>{foodInfo.category}</span>
                                 </p>
 
+                                <div className="hero__btns d-flex align-items-center gap-2 mt-3">
+                                    <button onClick={handleLikeBtn} className={`like-btn d-flex align-items-center justify-content-between ${liked ? 'active' : ''
+                                        }`}>
+                                        {liked ? <i class="ri-thumb-up-fill" /> : <i class="ri-thumb-up-line" />}
+                                        <span className='ms-1'>{likeCount}</span>
+                                    </button>
+
+                                    <button onClick={handleDislikeBtn} className={`dislike-btn ${disliked ? 'active' : ''}`}>
+                                        {disliked ? <i class="ri-thumb-down-fill" /> : <i class="ri-thumb-down-line" />}
+                                        <span className='ms-1 text-center'>{dislikeCount}</span>
+                                    </button>
+                                </div>
                                 <button onClick={addToCart} className="addTOCart__btn">
                                     Add to Cart
                                 </button>
@@ -95,58 +213,7 @@ const FoodDetails = () => {
                                     <p>{foodInfo.desc}</p>
                                 </div>
                             ) : (
-                                <div className="tab__form mb-3">
-                                    <div className="review pt-5">
-                                        <p className="user__name mb-0">Jhon Doe</p>
-                                        <p className="user__email">jhon1@gmail.com</p>
-                                        <p className="feedback__text">great product</p>
-                                    </div>
-
-                                    <div className="review">
-                                        <p className="user__name mb-0">Jhon Doe</p>
-                                        <p className="user__email">jhon1@gmail.com</p>
-                                        <p className="feedback__text">great product</p>
-                                    </div>
-
-                                    <div className="review">
-                                        <p className="user__name mb-0">Jhon Doe</p>
-                                        <p className="user__email">jhon1@gmail.com</p>
-                                        <p className="feedback__text">great product</p>
-                                    </div>
-                                    <form className="form" onSubmit={submitHandler}>
-                                        <div className="form__group">
-                                            <input
-                                                type="text"
-                                                placeholder="Enter your name"
-                                                onChange={(e) => setEnteredName(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-
-                                        <div className="form__group">
-                                            <input
-                                                type="text"
-                                                placeholder="Enter your email"
-                                                onChange={(e) => setEnteredEmail(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-
-                                        <div className="form__group">
-                                            <textarea
-                                                rows={5}
-                                                type="text"
-                                                placeholder="Write your review"
-                                                onChange={(e) => setReviewMsg(e.target.value)}
-                                                required
-                                            />
-                                        </div>
-
-                                        <button type="submit" className="addTOCart__btn">
-                                            Submit
-                                        </button>
-                                    </form>
-                                </div>
+                                <CommentSection />
                             )}
                         </Col>
                     </Row>

@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import Helmet from "../components/Helmet/Helmet";
 import CommonSection from "../components/UI/common-section/CommonSection";
 import { Container, Row, Col } from "reactstrap";
@@ -10,6 +10,7 @@ import { Alert, Button, Form } from "react-bootstrap";
 import '../styles/product-details.css';
 import { useContext } from "react";
 import { AuthContext } from "../contexts/UserContext";
+import io from 'socket.io-client';
 
 
 const auth = getAuth(app);
@@ -17,17 +18,38 @@ const auth = getAuth(app);
 const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [name, setName] = useState('');
+  const [userName, setUserName] = useState('');
   const [validated, setValidated] = useState(false);
   const [passwordError, setPasswordError] = useState('');
   const [emailMessage, setEmailMessage] = useState('');
   const [success, setSuccess] = useState(false);
+  const [isUserNameTaken, setIsUserNameTaken] = useState(false);
+  const [userNameError, setUserNameError] = useState('');
 
   const { createUser } = useContext(AuthContext);
 
-  const handleNameBlur = event => {
-    setName(event.target.value);
-  }
+  const socket = io('http://localhost:5000/');
+
+  useEffect(() => {
+    socket.on('userName-taken', () => {
+      setIsUserNameTaken(true);
+    });
+
+    socket.on('userName-available', () => {
+      setIsUserNameTaken(false);
+    });
+
+    return () => {
+      socket.off('userName-taken');
+      socket.off('userName-available')
+    };
+  }, []);
+
+  const handleNameChange = (event) => {
+    setUserName(event.target.value);
+
+    socket.emit('check-userName', userName);
+  };
 
   const emailValidation = event => {
     setEmail(event.target.value);
@@ -43,7 +65,7 @@ const Register = () => {
   const handlePasswordBlur = event => {
     setPassword(event.target.value);
 
-    if (/(?=.*?[#?!@$%^&*-])/.test(password) === false) {
+    if (/^(?=.*?[#?!@$%^&*-]).{8,}/.test(password) === false) {
       setPasswordError('Password must be minimum eight in length and contain at least one special character');
     } else {
       setPasswordError('');
@@ -56,40 +78,47 @@ const Register = () => {
     event.preventDefault();
     setSuccess(false);
 
-    const form = event.target;
-    const name = form.name.value;
+    const form = event.currentTarget;
+
+    if (form.checkValidity() === false) {
+      event.stopPropagation();
+      setValidated(true);
+      return;
+    }
+
+    const userName = form.userName.value;
     const email = form.email.value;
     const password = form.password.value;
-    console.log(name, email, password);
+    const date = form.date.value;
 
-    createUser(email, password, name)
+    createUser(email, password, userName)
       .then(result => {
         const user = result.user;
-        console.log('registered user', user);
-        setName('');
+        setUserName('');
         setEmail('');
         setPassword('');
         setSuccess(true);
         form.reset();
         verifiedEmail();
-        updateUserName(name);
+        updateUserName(userName);
       })
       .catch(error => {
         console.error(error);
       })
 
-    if (form.checkValidity() === false) {
-      event.stopPropagation();
-      // return;
-    }
-
-    if (!/(?=.*?[#?!@$%^&*-])/.test(password)) {
-      setPasswordError('Password must be minimum eight in length and contain at least one special character');
-      return;
-    }
-
-    setValidated(true);
-    event.preventDefault();
+    fetch('http://localhost:5000/addUser', {
+      method: 'POST',
+      headers: {
+        "Content-type": "application/json; charset=UTF-8"
+      },
+      body: JSON.stringify({ userName, email, date }),
+    })
+      .then(res => res.json())
+      .then(success => {
+        if (success) {
+          alert('Successful');
+        }
+      })
   };
 
   const verifiedEmail = () => {
@@ -121,6 +150,7 @@ const Register = () => {
     marginLeft: "30%"
   };
 
+
   return (
     <Helmet title="Signup">
       <CommonSection title="Signup" />
@@ -130,27 +160,27 @@ const Register = () => {
             <Col lg="6" md="6" sm="12" className="m-auto">
               <Form noValidate validated={validated} className="form mb-5" onSubmit={handleFormSubmit}>
                 <Form.Group className="form__group">
-                  <Form.Control type="text" name="name" placeholder="Full Name" onBlur={handleNameBlur} required />
+                  <Form.Control type="text" name="userName" placeholder="User Name" value={userName} onChange={handleNameChange} required />
                   <Form.Control.Feedback type="invalid">
-                    Please provide a valid name.
+                    {userNameError && <p>{userNameError}</p>}
                   </Form.Control.Feedback>
                 </Form.Group >
                 <Form.Group className="form__group">
-                  <Form.Control type="email" name="email" placeholder="Email" onChange={emailValidation} required />
+                  <Form.Control type="email" name="email" placeholder="Email" value={email} onChange={emailValidation} required />
                   <Form.Control.Feedback type="invalid">
                     Please provide a valid email.
                   </Form.Control.Feedback>
                 </Form.Group >
                 <p className="text-danger">{emailMessage}</p>
                 <Form.Group className="form__group">
-                  <Form.Control type="password" name="password" placeholder="Password" onChange={handlePasswordBlur} required />
+                  <Form.Control type="password" name="password" placeholder="Password" value={password} onChange={handlePasswordBlur} required />
                   <Form.Control.Feedback type="invalid">
                     Please provide a valid password.
                   </Form.Control.Feedback>
                 </Form.Group>
                 <p className="text-danger">{passwordError}</p>
                 <Form.Group className="form__group">
-                  <Form.Control type="date" required />
+                  <Form.Control type="date" name="date" required />
                   <Form.Control.Feedback type="invalid">
                     Please provide your birth date.
                   </Form.Control.Feedback>
@@ -165,7 +195,7 @@ const Register = () => {
           </Row>
         </Container>
       </section>
-    </Helmet >
+    </Helmet>
   );
 };
 
