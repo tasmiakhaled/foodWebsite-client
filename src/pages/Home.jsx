@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 
-import { TimelineLite, Power3} from 'gsap';
+import { TimelineLite, Power3 } from 'gsap';
 
 import Helmet from "../components/Helmet/Helmet.js";
 import { Container, Row, Col, ListGroup, ListGroupItem } from "reactstrap";
@@ -24,31 +24,39 @@ import networkImg from "../assets/images/network.png";
 
 import TestimonialSlider from "../components/UI/slider/TestimonialSlider.jsx";
 
-const featureData = [
-  {
-    title: "Quick Search",
-    imgUrl: featureImg01,
-    desc: "Hurry up to find your food",
-  },
+// const featureData = [
+//   {
+//     title: "Quick Search",
+//     imgUrl: featureImg01,
+//     desc: "Hurry up to find your food",
+//   },
 
-  {
-    title: "Easy Checkout",
-    imgUrl: featureImg02,
-    desc: "checkout easily from anywhere.",
-  },
-  {
-    title: "Resourceful",
-    imgUrl: featureImg03,
-    desc: "Variety of food collection.",
-  },
-];
+//   {
+//     title: "Easy Checkout",
+//     imgUrl: featureImg02,
+//     desc: "checkout easily from anywhere.",
+//   },
+//   {
+//     title: "Resourceful",
+//     imgUrl: featureImg03,
+//     desc: "Variety of food collection.",
+//   },
+// ];
 
 const Home = () => {
 
-  useEffect( () => {
-    const tl = new TimelineLite({ delay: 0.3});
-    tl.from('.hero__img', {duration: 0.7, opacity:0, y:15, delay:0.5})
-    tl.from('.hero__content', {duration: 0.7, opacity:0, y:15, delay:0.5})
+  const [featuredData, setFeaturedData] = useState([]);
+
+  useEffect(() => {
+    const tl = new TimelineLite({ delay: 0.3 });
+    tl.from('.hero__img', { duration: 0.7, opacity: 0, y: 15, delay: 0.5 })
+    tl.from('.hero__content', { duration: 0.7, opacity: 0, y: 15, delay: 0.5 })
+  }, []);
+
+  useEffect(() => {
+    fetch('http://localhost:8000/featuredData')
+      .then(res => res.json())
+      .then(data => setFeaturedData(data))
   }, []);
 
   return (
@@ -126,12 +134,11 @@ const Home = () => {
                 lets have a break and eat food {" "}
               </p>
             </Col>
-
-            {featureData.map((item, index) => (
+            {featuredData.map((item, index) => (
               <Col lg="4" md="6" sm="6" key={index} className="mt-5">
                 <div className="feature__item text-center px-5 py-3">
                   <img
-                    src={item.imgUrl}
+                    src={item.img}
                     alt="feature-img"
                     className="w-25 mb-3"
                   />
