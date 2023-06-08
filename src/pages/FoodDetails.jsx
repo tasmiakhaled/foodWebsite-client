@@ -11,11 +11,8 @@ import { cartActions } from "../store/shopping-cart/cartSlice";
 import "../styles/product-details.css";
 import { AuthContext } from '../contexts/UserContext';
 import CommentSection from './CommentSection';
-import StarRating from './StarRating';
-import Reviews from '../components/UI/review-card/Reviews';
-import { useQuery } from 'react-query';
 
-const FoodDetails = (props) => {
+const FoodDetails = () => {
 
     const [tab, setTab] = useState("desc");
     const [foodInfo, setFoodInfo] = useState([]);
@@ -26,21 +23,8 @@ const FoodDetails = (props) => {
     const [lastLikeClickTime, setLastLikeClickTime] = useState(0);
     const [lastDislikeClickTime, setLastDislikeClickTime] = useState(0);
 
-
-
     const { id } = useParams();
     const dispatch = useDispatch();
-
-    // useEffect(() => {
-    //     fetch('http://localhost:5000/reviews')
-    //         .then(res => res.json())
-    //         .then(review => setReview(review))
-    // }, []);
-
-    // const { data: reviews = [] } = useQuery({
-    //     queryKey: ['reviews'],
-    //     queryFn: () => fetch('http://localhost:5000/reviews').then(res => res.json())
-    // })
 
     useEffect(() => {
         fetch(`http://localhost:5000/foods/${id}`)
@@ -178,7 +162,6 @@ const FoodDetails = (props) => {
                             <Col lg="6" md="6">
                                 <div className="single__product-content">
                                     <h2 className="product__title mb-3">{foodInfo.title}</h2>
-                                    <StarRating />
                                     <p className="product__price">
                                         {" "}
                                         Price: <span>${foodInfo.price}</span>
@@ -227,7 +210,6 @@ const FoodDetails = (props) => {
                                     </div>
                                 ) : (
                                     <div className="tab__form mb-3">
-                                        {/* {reviews.map(review => <Reviews key={review._id} reviewData={review}></Reviews>)} */}
                                         <CommentSection />
                                     </div>
                                 )}

@@ -23,32 +23,32 @@ const Register = () => {
   const [passwordError, setPasswordError] = useState('');
   const [emailMessage, setEmailMessage] = useState('');
   const [success, setSuccess] = useState(false);
-  const [isUserNameTaken, setIsUserNameTaken] = useState(false);
-  const [userNameError, setUserNameError] = useState('');
+  // const [isUserNameTaken, setIsUserNameTaken] = useState(false);
+  // const [userNameError, setUserNameError] = useState('');
 
   const { createUser } = useContext(AuthContext);
 
-  const socket = io('http://localhost:5000/');
+  // const socket = io('http://localhost:5000/');
 
-  useEffect(() => {
-    socket.on('userName-taken', () => {
-      setIsUserNameTaken(true);
-    });
+  // useEffect(() => {
+  //   socket.on('userName-taken', () => {
+  //     setIsUserNameTaken(true);
+  //   });
 
-    socket.on('userName-available', () => {
-      setIsUserNameTaken(false);
-    });
+  //   socket.on('userName-available', () => {
+  //     setIsUserNameTaken(false);
+  //   });
 
-    return () => {
-      socket.off('userName-taken');
-      socket.off('userName-available')
-    };
-  }, []);
+  //   return () => {
+  //     socket.off('userName-taken');
+  //     socket.off('userName-available')
+  //   };
+  // }, []);
 
   const handleNameChange = (event) => {
     setUserName(event.target.value);
 
-    socket.emit('check-userName', userName);
+    // socket.emit('check-userName', userName);
   };
 
   const emailValidation = event => {
@@ -162,7 +162,7 @@ const Register = () => {
                 <Form.Group className="form__group">
                   <Form.Control type="text" name="userName" placeholder="User Name" value={userName} onChange={handleNameChange} required />
                   <Form.Control.Feedback type="invalid">
-                    {userNameError && <p>{userNameError}</p>}
+                    {/* {userNameError && <p>{userNameError}</p>} */}
                   </Form.Control.Feedback>
                 </Form.Group >
                 <Form.Group className="form__group">

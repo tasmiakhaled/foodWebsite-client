@@ -1,5 +1,6 @@
 import React, { useContext, useState, useEffect } from 'react';
 import { AuthContext } from '../contexts/UserContext';
+import StarRating from './StarRating';
 
 const CommentSection = () => {
   const [name, setName] = useState('');
@@ -7,6 +8,8 @@ const CommentSection = () => {
   const [reviewText, setReviewText] = useState('');
   const [imageFile, setImageFile] = useState(null);
   const [reviews, setReviews] = useState([]);
+  const [rating, setRating] = useState(0);
+  const [averageRating, setAverageRating] = useState(0);
 
   const { user } = useContext(AuthContext);
 
@@ -18,6 +21,10 @@ const CommentSection = () => {
     setEmail(event.target.value);
   };
 
+  const handleRatingChange = (value) => {
+    setRating(value);
+  };
+
   const handleReviewTextChange = (event) => {
     setReviewText(event.target.value);
   };
@@ -27,18 +34,24 @@ const CommentSection = () => {
     setImageFile(file);
   };
 
+  const addReview = (review) => {
+    setReviews([...reviews, review]);
+  };
+
   const handleFormSubmit = (event) => {
     event.preventDefault();
 
     const reviewData = {
       name: name || user?.displayName,
       email: email || user?.email,
+      rating: rating,
       review: reviewText,
     };
 
     const formData = new FormData();
     formData.append('name', name || user?.displayName);
     formData.append('email', email || user?.email);
+    formData.append('rating', rating);
     formData.append('review', reviewText);
     formData.append('image', imageFile);
     formData.append('reviewData', JSON.stringify(reviewData));
@@ -50,11 +63,12 @@ const CommentSection = () => {
       .then((res) => res.json())
       .then((newReview) => {
         // Reset form after successful submission
+        setRating(0);
         setReviewText('');
         setImageFile(null);
 
-        // Update the reviews state with the new review
-        setReviews([...reviews, newReview]);
+        // Add the new review to the reviews state
+        addReview(newReview);
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -66,6 +80,11 @@ const CommentSection = () => {
       .then((res) => res.json())
       .then((reviews) => {
         setReviews(reviews);
+
+        // Calculate total rating
+        const totalRating = reviews.reduce((sum, review) => sum + parseFloat(review.rating), 0);
+        const average = reviews.length > 0 ? totalRating / reviews.length : 0;
+        setAverageRating(Number(average.toFixed(1)));
       })
       .catch((error) => {
         console.error('Error:', error);
@@ -74,11 +93,14 @@ const CommentSection = () => {
 
   return (
     <div>
+      <p>Average Rating: {averageRating} out of 5</p>
       {/* Display the reviews */}
       {reviews.map((review, index) => (
         <div key={index} className="review pt-5">
           <p className="user__name mb-0">{review.name}</p>
           <p className="user__email mb-0 text-success">{review.email}</p>
+          {review.rating && (
+            <StarRating value={review.rating} readonly cancel={false} />)}
           <p className="feedback__text">{review.review}</p>
           {review.image && (
             <div>
@@ -112,6 +134,10 @@ const CommentSection = () => {
         </div>
 
         <div className="form__group">
+          <StarRating value={rating} cancel={false} onChange={handleRatingChange} />
+        </div>
+
+        <div className="form__group">
           <textarea
             rows={2}
             type="text"
@@ -124,12 +150,7 @@ const CommentSection = () => {
         </div>
 
         <div className="form__group">
-          <input
-            type="file"
-            name="image"
-            accept="image/*"
-            onChange={handleImageChange}
-          />
+          <input type="file" name="image" accept="image/*" onChange={handleImageChange} />
         </div>
 
         <button type="submit" className="addTOCart__btn">
