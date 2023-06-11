@@ -8,6 +8,9 @@ import { getAuth, sendPasswordResetEmail} from "firebase/auth";
 import { useState } from "react";
 import { useContext } from "react";
 import { AuthContext } from "../contexts/UserContext";
+import {toast, ToastContainer} from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 
 const auth = getAuth(app);
 
@@ -51,13 +54,31 @@ const Login = () => {
   const handleForgetPassword = () => {
 
     if(!email){
-      alert('Please enter your email address.');
+      toast.warn('Please enter your email address.', {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        });
       return;
     }
 
     sendPasswordResetEmail(auth, email)
     .then( () => {
-      alert('Please check your email to reset your password.');
+      toast.info('Please check your email to reset your password.', {
+        position: "bottom-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
+        });
     })
     .catch(error => {
       console.error(error);
@@ -102,6 +123,7 @@ const Login = () => {
           </Row>
         </Container>
       </section>
+      <ToastContainer></ToastContainer>
     </Helmet>
   );
 };

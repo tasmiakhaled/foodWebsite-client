@@ -11,6 +11,7 @@ import { cartActions } from "../store/shopping-cart/cartSlice";
 import "../styles/product-details.css";
 import { AuthContext } from '../contexts/UserContext';
 import CommentSection from './CommentSection';
+import StarRating from './StarRating';
 
 const FoodDetails = () => {
 
@@ -22,6 +23,9 @@ const FoodDetails = () => {
     const [dislikeCount, setDislikeCount] = useState(0);
     const [lastLikeClickTime, setLastLikeClickTime] = useState(0);
     const [lastDislikeClickTime, setLastDislikeClickTime] = useState(0);
+    const [reviews, setReviews] = useState([]);
+    const [rating, setRating] = useState(0);
+    const [averageRating, setAverageRating] = useState(0);
 
     const { id } = useParams();
     const dispatch = useDispatch();
@@ -48,6 +52,23 @@ const FoodDetails = () => {
             setDisliked(true);
         }
     }, [id]);
+
+    //for showing average rating of all ratings
+    useEffect(() => {
+        fetch('http://localhost:5000/reviews')
+            .then((res) => res.json())
+            .then((reviews) => {
+                setReviews(reviews);
+
+                // Calculate total rating
+                const totalRating = reviews.reduce((sum, review) => sum + parseFloat(review.rating), 0);
+                const average = reviews.length > 0 ? totalRating / reviews.length : 0;
+                setAverageRating(Number(average.toFixed(1)));
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+            });
+    }, [reviews]);
 
     const { user } = useContext(AuthContext);
     console.log('context', user);
@@ -149,75 +170,78 @@ const FoodDetails = () => {
             .catch((error) => console.error(error));
     };
     return (
-            <Helmet title="Product-details">
-                <CommonSection title={foodInfo.title} />
-                <section>
-                    <Container>
-                        <Row>
-                            <Col lg="4" md="4">
-                                <div className="product__main-img">
-                                    <img src={foodInfo.image01} alt="" className="w-100" />
-                                </div>
-                            </Col>
-                            <Col lg="6" md="6">
-                                <div className="single__product-content">
-                                    <h2 className="product__title mb-3">{foodInfo.title}</h2>
-                                    <p className="product__price">
-                                        {" "}
-                                        Price: <span>${foodInfo.price}</span>
-                                    </p>
-                                    <p className="category">
-                                        Category: <span>{foodInfo.category}</span>
-                                    </p>
+        <Helmet title="Product-details">
+            <CommonSection title={foodInfo.title} />
+            <section>
+                <Container>
+                    <Row>
+                        <Col lg="4" md="4">
+                            <div className="product__main-img">
+                                <img src={foodInfo.image01} alt="" className="w-100" />
+                            </div>
+                        </Col>
+                        <Col lg="6" md="6">
+                            <div className="single__product-content">
+                                <h2 className="product__title mb-3">{foodInfo.title}</h2>
+                                {averageRating &&
+                                    (<p className="rating">Rating: <span className='text-warning'>{averageRating} out of 5</span></p>
+                                    )}
+                                <p className="product__price">
+                                    {" "}
+                                    Price: <span>${foodInfo.price}</span>
+                                </p>
+                                <p className="category">
+                                    Category: <span>{foodInfo.category}</span>
+                                </p>
 
-                                    <div className="hero__btns d-flex align-items-center gap-2 mt-3">
-                                        <button onClick={handleLikeBtn} className={`like-btn d-flex align-items-center justify-content-between ${liked ? 'active' : ''
-                                            }`}>
-                                            {liked ? <i class="ri-thumb-up-fill" /> : <i class="ri-thumb-up-line" />}
-                                            <span className='ms-1'>{likeCount}</span>
-                                        </button>
+                                <div className="hero__btns d-flex align-items-center gap-2 mt-3">
+                                    <button onClick={handleLikeBtn} className={`like-btn d-flex align-items-center justify-content-between ${liked ? 'active' : ''
+                                        }`}>
+                                        {liked ? <i class="ri-thumb-up-fill" /> : <i class="ri-thumb-up-line" />}
+                                        <span className='ms-1'>{likeCount}</span>
+                                    </button>
 
-                                        <button onClick={handleDislikeBtn} className={`dislike-btn ${disliked ? 'active' : ''}`}>
-                                            {disliked ? <i class="ri-thumb-down-fill" /> : <i class="ri-thumb-down-line" />}
-                                            <span className='ms-1 text-center'>{dislikeCount}</span>
-                                        </button>
-                                    </div>
-                                    <button onClick={addToCart} className="addTOCart__btn">
-                                        Add to Cart
+                                    <button onClick={handleDislikeBtn} className={`dislike-btn ${disliked ? 'active' : ''}`}>
+                                        {disliked ? <i class="ri-thumb-down-fill" /> : <i class="ri-thumb-down-line" />}
+                                        <span className='ms-1 text-center'>{dislikeCount}</span>
                                     </button>
                                 </div>
-                            </Col>
+                                <button onClick={addToCart} className="addTOCart__btn">
+                                    Add to Cart
+                                </button>
+                            </div>
+                        </Col>
 
-                            <Col lg="12">
-                                <div className="tabs d-flex align-items-center gap-5 py-3">
-                                    <h6
-                                        className={` ${tab === "desc" ? "tab__active" : ""}`}
-                                        onClick={() => setTab("desc")}
-                                    >
-                                        Description
-                                    </h6>
-                                    <h6
-                                        className={` ${tab === "rev" ? "tab__active" : ""}`}
-                                        onClick={() => setTab("rev")}
-                                    >
-                                        Review
-                                    </h6>
+                        <Col lg="12">
+                            <div className="tabs d-flex align-items-center gap-5 py-3">
+                                <h6
+                                    className={` ${tab === "desc" ? "tab__active" : ""}`}
+                                    onClick={() => setTab("desc")}
+                                >
+                                    Description
+                                </h6>
+                                <h6
+                                    className={` ${tab === "rev" ? "tab__active" : ""}`}
+                                    onClick={() => setTab("rev")}
+                                >
+                                    Review
+                                </h6>
+                            </div>
+
+                            {tab === "desc" ? (
+                                <div className="tab__content">
+                                    <p>{foodInfo.desc}</p>
                                 </div>
-
-                                {tab === "desc" ? (
-                                    <div className="tab__content">
-                                        <p>{foodInfo.desc}</p>
-                                    </div>
-                                ) : (
-                                    <div className="tab__form mb-3">
-                                        <CommentSection />
-                                    </div>
-                                )}
-                            </Col>
-                        </Row>
-                    </Container>
-                </section>
-            </Helmet>
+                            ) : (
+                                <div className="tab__form mb-3">
+                                    <CommentSection />
+                                </div>
+                            )}
+                        </Col>
+                    </Row>
+                </Container>
+            </section>
+        </Helmet>
     );
 };
 

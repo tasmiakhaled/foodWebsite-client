@@ -14,13 +14,9 @@ import { Provider } from "react-redux";
 
 import { BrowserRouter as Router } from "react-router-dom";
 import UserContext from "./contexts/UserContext";
-import { QueryClient, QueryClientProvider } from "react-query";
-
-const queryClient = new QueryClient()
 
 ReactDOM.render(
   <React.StrictMode>
-    <QueryClientProvider client={queryClient}>
       <UserContext>
         <Router>
           <Provider store={store}>
@@ -28,7 +24,6 @@ ReactDOM.render(
           </Provider>
         </Router>
       </UserContext>
-    </QueryClientProvider>
   </React.StrictMode >,
   document.getElementById("root")
 );
