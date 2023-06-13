@@ -9,6 +9,7 @@ import { cartUiActions } from "../../store/shopping-cart/cartUiSlice";
 import "../../styles/header.css";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/UserContext";
+import DropDown from "../dropdown/DropDown";
 
 const nav__links = [
   {
@@ -29,16 +30,12 @@ const nav__links = [
   },
 ];
 
-const Header = () => {
+const Header = ({ dropdown, setDropdown }) => {
 
   const { user, logOut } = useContext(AuthContext);
-  console.log('context', user);
+  // console.log('context', user);
 
-  const handleLogOut = () => {
-    logOut()
-      .then(() => { })
-      .catch(error => console.error(error));
-  }
+
 
   const menuRef = useRef(null);
   const headerRef = useRef(null);
@@ -95,7 +92,7 @@ const Header = () => {
           <div className="nav__right d-flex align-items-center gap-4">
             <span className="cart__icon">
               <Link to="/detection">
-              <i class="ri-camera-line"></i></Link>
+                <i class="ri-camera-line"></i></Link>
             </span>
             <span className="cart__icon" onClick={toggleCart}>
               <i class="ri-shopping-basket-line"></i>
@@ -105,9 +102,9 @@ const Header = () => {
               user?.displayName && <span className="fw-bold">{user.displayName} </span>}
             {
               user?.displayName ?
-                <button onClick={handleLogOut} className="btn btn-outline-dark btn-sm fw-bold">
-                  Log Out
-                </button>
+                <div className="user" onClick={() => setDropdown(!dropdown)}>
+                  <i class="ri-user-line"></i>
+                </div>
                 : <span className="user">
                   <Link to="/login">
                     <i class="ri-user-line"></i>
@@ -120,7 +117,7 @@ const Header = () => {
           </div>
         </div>
       </Container>
-    </header>
+    </header >
   );
 };
 
