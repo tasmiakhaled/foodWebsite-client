@@ -136,7 +136,22 @@ code {
         transform: translateX(100%);
     }
 }
-.btn{
-   background-color: #eb8585;
 
-}
+.submit__btn {
+    border: none;
+    padding: 7px 25px;
+    background: none;
+    color: black;
+    border-radius: 5px;
+    font-size: 0.9rem;
+  }
+
+  .submit__btn:hover {
+    border: none;
+    padding: 7px 25px;
+    background: #df2020;
+    color: #fff;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    transition: 0.3s;
+  }

@@ -48,7 +48,7 @@ const Contact = () => {
           <br />
           <Row>
             <Col lg="12" className="form-group">
-              <button className="btn ac_btn" type="submit">
+              <button className="submit__btn" type="submit">
                 Send
               </button>
             </Col>
@@ -57,7 +57,6 @@ const Contact = () => {
       </Col>
     </Row>
   )
->>>>>>> 2823c495ea077540a0aa67f2fb010183120897cf
 };
 
 export default Contact;
