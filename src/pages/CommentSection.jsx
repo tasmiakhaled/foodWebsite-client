@@ -9,7 +9,6 @@ const CommentSection = () => {
   const [imageFile, setImageFile] = useState(null);
   const [reviews, setReviews] = useState([]);
   const [rating, setRating] = useState(0);
-  // const [averageRating, setAverageRating] = useState(0);
 
   const { user } = useContext(AuthContext);
 
@@ -80,11 +79,6 @@ const CommentSection = () => {
       .then((res) => res.json())
       .then((reviews) => {
         setReviews(reviews);
-
-        // Calculate total rating
-        // const totalRating = reviews.reduce((sum, review) => sum + parseFloat(review.rating), 0);
-        // const average = reviews.length > 0 ? totalRating / reviews.length : 0;
-        // setAverageRating(Number(average.toFixed(1)));
       })
       .catch((error) => {
         console.error('Error:', error);

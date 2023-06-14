@@ -12,6 +12,7 @@ const DropDown = ({ dropdown, setDropdown }) => {
             .then(() => { })
             .catch(error => console.error(error));
     }
+    
     return (
         <div className='dropdown-container'>
             <li className="d-item " onClick={() => {

@@ -8,6 +8,7 @@ import ava03 from "../../../assets/images/ava-3.jpg";
 import "../../../styles/slider.css";
 
 const TestimonialSlider = () => {
+  
   const settings = {
     dots: true,
     autoplay: true,
