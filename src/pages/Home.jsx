@@ -232,7 +232,7 @@ const Home = () => {
                   What our <span>customers</span> are saying
                 </h2>
                 <p className="testimonial__desc">
-                  As a customer service representative, they are enable to handle criticisms, complaints, and special requests from time-to-time. They handle these queries as customer retention is vital for a company to survive.
+                  They have the ability to respond to comments, grievances, and even unusual requests in their capacity as a customer service representative. They respond to these inquiries because a business needs to retain customers in order to succeed.
                 </p>
 
                 <TestimonialSlider />
