@@ -232,7 +232,7 @@ const Home = () => {
                   What our <span>customers</span> are saying
                 </h2>
                 <p className="testimonial__desc">
-                  They have the ability to respond to comments, grievances, and even unusual requests in their capacity as a customer service representative. They respond to these inquiries because a business needs to retain customers in order to succeed.
+                They can occasionally handle critiques, complaints, and special requests in their capacity as a customer service agent. As customer retention is crucial for a business to exist, they deal with these inquiries.
                 </p>
 
                 <TestimonialSlider />
